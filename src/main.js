@@ -6,7 +6,7 @@ import { initializeAuth } from './services/authAzure'
 import { ContentfulLivePreview } from '@contentful/live-preview';
 
 ContentfulLivePreview.init({
-    locale: 'es-PE', // Cámbialo a 'es' si en Contentful tu idioma principal no tiene región
+    locale: 'en-US', // Cámbialo a 'es' si en Contentful tu idioma principal no tiene región
     enableLiveUpdates: true,
     enableInspectorMode: true
 });
