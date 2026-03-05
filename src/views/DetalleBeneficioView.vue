@@ -3,6 +3,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import NavBar from '../components/NavBar.vue';
 import { ContentfulLivePreview } from '@contentful/live-preview';
+
 // Importamos las plantillas
 import PlantillaEPS from '../components/PlantillaEPS.vue';
 import PlantillaEducacion from '../components/PlantillaEducacion.vue';
@@ -19,11 +20,10 @@ const cargando = ref(true);
 
 /**
  * Función centralizada para cargar datos.
- * Ahora usa directamente route.params.id para asegurar que siempre
- * pida el ID que está en la barra de direcciones.
+ * Nota: Quitamos el "cargando.value = true" de aquí adentro 
+ * para que el Live Preview no parpadee al escribir.
  */
 const cargarDatosBeneficio = async () => {
-  cargando.value = true;
   const id = route.params.id;
   if (id) {
     beneficio.value = await obtenerBeneficioPorId(id);
@@ -33,20 +33,23 @@ const cargarDatosBeneficio = async () => {
 
 // 1. Carga inicial cuando el componente aparece
 onMounted(async () => {
+  cargando.value = true;
   await cargarDatosBeneficio();
 
-  // Suscripción OFICIAL al Live Preview de Contentful
-  ContentfulLivePreview.subscribe({
-    data: beneficio.value,
-    callback: (updatedData) => {
-      // Cuando escribas en Contentful, esto forzará una recarga de los datos
+  // 2. FIX SDK: Suscripción general al evento 'edit'
+  ContentfulLivePreview.subscribe('edit', {
+    callback: () => {
+      // Se ejecuta silenciosamente con cada cambio en el editor
       cargarDatosBeneficio();
     }
   });
 });
+
+// Cuando cambia la URL por completo (ej: navegas a otro beneficio)
 watch(
   () => route.fullPath,
   () => {
+    cargando.value = true; // Aquí sí mostramos el loader
     cargarDatosBeneficio();
   }
 );

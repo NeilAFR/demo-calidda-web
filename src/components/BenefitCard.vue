@@ -1,7 +1,6 @@
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
-// Agregamos el 'id' a las propiedades que recibe la tarjeta
 const props = defineProps({
   id: String, 
   icon: String,
@@ -10,10 +9,12 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const route = useRoute(); // <-- NUEVO: Para leer los parámetros actuales
 
 // Función que empuja al usuario a la ruta dinámica
 const irAlDetalle = () => {
-  router.push(`/beneficio/${props.id}`);
+  // <-- FIX: Ahora llevamos los parámetros de la URL (query) a la siguiente vista
+  router.push({ path: `/beneficio/${props.id}`, query: route.query });
 };
 </script>
 
