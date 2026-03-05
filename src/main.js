@@ -1,5 +1,13 @@
 import { createApp } from 'vue'
-import './style.css' // ¡Esta línea es la clave para que cargue Tailwind!
+import './style.css'
 import App from './App.vue'
+import router from './router'
+import { initializeAuth } from './services/authAzure' // Importamos la nueva función
 
-createApp(App).use(router).mount('#app')
+// Primero inicializamos la seguridad...
+initializeAuth().then(() => {
+    // ...y solo cuando termina, levantamos la interfaz de Vue
+    const app = createApp(App)
+    app.use(router)
+    app.mount('#app')
+}).catch(console.error);

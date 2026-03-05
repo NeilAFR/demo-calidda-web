@@ -13,13 +13,19 @@ const msalConfig = {
 };
 
 const msalInstance = new PublicClientApplication(msalConfig);
-// Debemos inicializar la instancia antes de usarla
-await msalInstance.initialize();
+
+// Esta función ahora la llamaremos al arrancar la app
+export const initializeAuth = async () => {
+    await msalInstance.initialize();
+    // Esta es la línea mágica que detecta si estamos en un popup, lee el #code y lo cierra
+    await msalInstance.handleRedirectPromise();
+};
 
 export const login = async () => {
     try {
         const loginResponse = await msalInstance.loginPopup({
-            scopes: ["User.Read"]
+            scopes: ["User.Read"],
+            prompt: "select_account"
         });
         return loginResponse.account;
     } catch (error) {
@@ -28,10 +34,7 @@ export const login = async () => {
     }
 };
 
-export const logout = () => {
-    msalInstance.logoutPopup();
-};
-
 export const getActiveAccount = () => {
-    return msalInstance.getAllAccounts()[0] || null;
+    const accounts = msalInstance.getAllAccounts();
+    return accounts.length > 0 ? accounts[0] : null;
 };

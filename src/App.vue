@@ -1,8 +1,7 @@
-<script setup>
-// Importamos la vista que creamos
-import Inicio from './views/Inicio.vue';
-</script>
-
 <template>
   <router-view />
 </template>
+
+<style>
+/* Estilos globales si necesitas */
+</style>
