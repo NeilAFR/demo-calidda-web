@@ -13,24 +13,28 @@ const msalConfig = {
 };
 
 const msalInstance = new PublicClientApplication(msalConfig);
+let isInitialized = false;
 
-// Esta función ahora la llamaremos al arrancar la app
 export const initializeAuth = async () => {
-    await msalInstance.initialize();
-    // Esta es la línea mágica que detecta si estamos en un popup, lee el #code y lo cierra
-    await msalInstance.handleRedirectPromise();
+    if (!isInitialized) {
+        await msalInstance.initialize();
+        isInitialized = true;
+    }
+    // ¡LA MAGIA OCURRE AQUÍ! 
+    // Si la página se está recargando porque Microsoft nos devolvió, esto captura el token.
+    const response = await msalInstance.handleRedirectPromise();
+    return response;
 };
 
 export const login = async () => {
     try {
-        const loginResponse = await msalInstance.loginPopup({
+        // Redirige toda la pestaña, 100% seguro contra bloqueos de navegadores
+        await msalInstance.loginRedirect({
             scopes: ["User.Read"],
             prompt: "select_account"
         });
-        return loginResponse.account;
     } catch (error) {
-        console.error("Error en el login de Azure:", error);
-        return null;
+        console.error("Error al redirigir a Azure:", error);
     }
 };
 
