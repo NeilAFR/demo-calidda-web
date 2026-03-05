@@ -42,3 +42,13 @@ export const getActiveAccount = () => {
     const accounts = msalInstance.getAllAccounts();
     return accounts.length > 0 ? accounts[0] : null;
 };
+export const logout = async () => {
+    try {
+        // Esto limpia la sesión en tu navegador y avisa a Microsoft que cerraste
+        await msalInstance.logoutRedirect({
+            postLogoutRedirectUri: import.meta.env.VITE_AZURE_REDIRECT_URI
+        });
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+    }
+};

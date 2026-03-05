@@ -1,9 +1,20 @@
 <script setup>
-defineProps({
+import { useRouter } from 'vue-router';
+
+// Agregamos el 'id' a las propiedades que recibe la tarjeta
+const props = defineProps({
+  id: String, 
   icon: String,
   title: String,
   description: String
 });
+
+const router = useRouter();
+
+// Función que empuja al usuario a la ruta dinámica
+const irAlDetalle = () => {
+  router.push(`/beneficio/${props.id}`);
+};
 </script>
 
 <template>
@@ -15,7 +26,8 @@ defineProps({
     <p class="mb-6 flex-1 text-sm leading-relaxed text-slate-600">
       {{ description }}
     </p>
-    <button class="flex items-center gap-2 text-sm font-bold text-primary group-hover:gap-3 transition-all">
+    
+    <button @click="irAlDetalle" class="flex items-center gap-2 text-sm font-bold text-primary group-hover:gap-3 transition-all cursor-pointer">
       Ver más <span class="material-symbols-outlined text-sm">arrow_forward</span>
     </button>
   </div>
