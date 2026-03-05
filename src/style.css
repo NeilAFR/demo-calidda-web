@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/* Aquí configuramos tu paleta corporativa para Tailwind v4 */
+@theme {
+  --color-primary: #1173d4;
+  --color-primary-100: #cce0f5;
+  --color-background-light: #f6f7f8;
+  --color-background-dark: #101922;
+
+  --font-display: "Inter", sans-serif;
+}
+
+/* Configuramos la fuente base para todo el proyecto */
+body {
+  font-family: var(--font-display);
+  background-color: var(--color-background-light);
+}
