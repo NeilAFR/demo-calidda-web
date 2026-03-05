@@ -18,7 +18,7 @@ const cerrarSesion = async () => {
   <header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
       <div class="flex items-center gap-3">
-        <router-link to="/inicio" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <router-link :to="{ path: '/inicio', query: $route.query }" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
         <img src="/logo-calidda.png" alt="Cálidda Logo" class="h-8 object-contain"/>
       </router-link>
       </div>

@@ -1,40 +1,63 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import NavBar from '../components/NavBar.vue';
 
-// Importamos AMBAS plantillas
+// Importamos las plantillas
 import PlantillaEPS from '../components/PlantillaEPS.vue';
 import PlantillaEducacion from '../components/PlantillaEducacion.vue';
 import PlantillaMaternidad from '../components/PlantillaMaternidad.vue';
-// Importamos la nueva función del servicio
+
+// Importamos el servicio
 import { obtenerBeneficioPorId } from '../services/contentful.js';
 
 const route = useRoute();
-const idBeneficio = route.params.id;
 
 // Variables de estado
 const beneficio = ref(null);
 const cargando = ref(true);
 
-// 1. Al cargar la vista, vamos a Contentful a buscar los datos
-onMounted(async () => {
-  beneficio.value = await obtenerBeneficioPorId(idBeneficio);
+/**
+ * Función centralizada para cargar datos.
+ * Ahora usa directamente route.params.id para asegurar que siempre
+ * pida el ID que está en la barra de direcciones.
+ */
+const cargarDatosBeneficio = async () => {
+  cargando.value = true;
+  const id = route.params.id;
+  if (id) {
+    beneficio.value = await obtenerBeneficioPorId(id);
+  }
   cargando.value = false;
-});
+};
 
-// 2. Calculamos qué diseño usar basados en lo que eligió Marketing
+// 1. Carga inicial cuando el componente aparece
+onMounted(cargarDatosBeneficio);
+
+/**
+ * 2. FIX LIVE PREVIEW: 
+ * Escuchamos cualquier cambio en la ruta completa. 
+ * Si Marketing cambia la plantilla o el contenido en Contentful, 
+ * la URL del iframe se refresca y este 'watch' dispara la recarga de datos.
+ */
+watch(
+  () => route.fullPath,
+  () => {
+    cargarDatosBeneficio();
+  }
+);
+
+// 3. Selección dinámica de plantilla
 const componenteElegido = computed(() => {
   if (!beneficio.value) return null;
   
-  if (beneficio.value.plantilla === 'plantilla-educacion') {
-    return PlantillaEducacion;
-  }
-  if (beneficio.value.plantilla === 'plantilla-maternidad') {
-    return PlantillaMaternidad;
-  }
-  
-  return PlantillaEPS; // Plantilla por defecto si es "plantilla-eps" o viene vacío
+  const plantillas = {
+    'plantilla-educacion': PlantillaEducacion,
+    'plantilla-maternidad': PlantillaMaternidad,
+    'plantilla-eps': PlantillaEPS
+  };
+
+  return plantillas[beneficio.value.plantilla] || PlantillaEPS;
 });
 </script>
 
@@ -43,14 +66,20 @@ const componenteElegido = computed(() => {
     <NavBar />
 
     <main class="flex-1">
-      
       <div v-if="cargando" class="flex h-64 items-center justify-center">
-        <p class="text-slate-500 font-medium">Cargando detalles del beneficio...</p>
+        <div class="flex flex-col items-center gap-3">
+          <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          <p class="text-slate-500 font-medium text-sm italic">Sincronizando con Contentful...</p>
+        </div>
       </div>
       
-      <div v-else-if="!beneficio" class="flex h-64 flex-col items-center justify-center gap-4">
-        <span class="material-symbols-outlined text-4xl text-slate-300">sentiment_dissatisfied</span>
-        <p class="text-slate-500 font-medium">No se encontró el beneficio solicitado.</p>
+      <div v-else-if="!beneficio" class="flex h-64 flex-col items-center justify-center gap-4 text-center px-4">
+        <span class="material-symbols-outlined text-5xl text-slate-300">find_in_page</span>
+        <div>
+          <p class="text-slate-800 font-bold">Beneficio no disponible</p>
+          <p class="text-slate-500 text-sm">El contenido que buscas no existe o aún no ha sido publicado.</p>
+        </div>
+        <router-link to="/inicio" class="text-primary font-bold text-sm underline">Volver al inicio</router-link>
       </div>
 
       <component 
