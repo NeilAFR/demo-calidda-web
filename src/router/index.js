@@ -24,19 +24,29 @@ const router = createRouter({
     routes
 });
 
-router.beforeEach(async (to, from, next) => {
-    // Verificamos si en la URL existe el parámetro ?preview=true
+// EL GUARDIA DE SEGURIDAD BLINDADO
+router.beforeEach((to, from, next) => {
+    // 1. Buscamos nuestra "llave secreta" en la URL
     const esModoPreview = to.query.preview === 'true';
 
-    if (to.meta.requiresAuth && !esModoPreview) {
-        const user = getActiveAccount();
-        if (!user) {
-            next('/');
-        } else {
+    // 2. Si la ruta es privada (Inicio o Detalle)
+    if (to.meta.requiresAuth) {
+
+        // Si tiene la llave de Contentful, ¡déjalo pasar sin preguntar!
+        if (esModoPreview) {
             next();
+        } else {
+            // Si no tiene la llave, verificamos si hay sesión en Azure
+            const user = getActiveAccount();
+            if (!user) {
+                next('/'); // Pa' fuera, al login
+            } else {
+                next(); // Tiene sesión, adelante
+            }
         }
+
     } else {
-        // Si es modo preview, saltamos el guardia de Azure
+        // Si es una ruta pública (como el mismo Login), déjalo pasar
         next();
     }
 });
