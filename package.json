@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/msal-browser": "^5.4.0",
     "@contentful/live-preview": "^4.9.7",
     "@tailwindcss/vite": "^4.2.1",
     "tailwindcss": "^4.2.1",

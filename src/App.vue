@@ -4,5 +4,5 @@ import Inicio from './views/Inicio.vue';
 </script>
 
 <template>
-  <Inicio />
+  <router-view />
 </template>

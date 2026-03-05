@@ -3,24 +3,41 @@ import { ref, onMounted } from 'vue';
 import BenefitCard from '../components/BenefitCard.vue';
 import { obtenerBeneficios } from '../services/contentful.js';
 import { ContentfulLivePreview } from '@contentful/live-preview';
+import { getActiveAccount } from '../services/authAzure';
 
-onMounted(() => {
-  // Inicializa la escucha de cambios en vivo
-  ContentfulLivePreview.init({ locale: 'en-US' });
-  
-  cargarDatos(false);
-});
-const modoPreview = ref(false);
+const usuario = ref(null);
+// 1. Definición de variables de estado
 const beneficios = ref([]);
 const cargando = ref(true);
+const modoPreview = ref(false); // Esta faltaba definirla
+
+// 2. Función maestra para cargar datos
+const cargarDatos = async (preview = false) => {
+  cargando.value = true; // Mostramos el mensaje de carga
+  try {
+    beneficios.value = await obtenerBeneficios(preview);
+  } catch (error) {
+    console.error("Error cargando beneficios:", error);
+  } finally {
+    cargando.value = false; // ¡Aquí está el truco! Apagamos el mensaje siempre al terminar
+  }
+};
+
+// 3. Función para el botón de Marketing
 const alternarModo = () => {
   modoPreview.value = !modoPreview.value;
   cargarDatos(modoPreview.value);
 };
 
+// 4. Un solo ciclo de vida onMounted
 onMounted(async () => {
-  beneficios.value = await obtenerBeneficios();
-  cargando.value = false;
+  usuario.value = await getActiveAccount();
+  // Inicializamos Live Preview de Contentful
+  ContentfulLivePreview.init({ locale: 'en-US' });
+  
+  // Ejecutamos la carga inicial (web oficial)
+  cargarDatos(false);
+  
 });
 </script>
 
@@ -54,6 +71,7 @@ onMounted(async () => {
           </button>
           <div class="h-10 w-10 overflow-hidden rounded-full border-2 border-primary/20 bg-primary/10 flex items-center justify-center">
              <span class="material-symbols-outlined text-primary">person</span>
+             <span class="text-sm font-bold text-slate-700">{{ usuario?.name }}</span>
           </div>
         </div>
       </div>
