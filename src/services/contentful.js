@@ -41,7 +41,8 @@ export const obtenerBeneficioPorId = async (id) => {
     const baseHost = modoPreviewActivo ? 'preview.contentful.com' : 'cdn.contentful.com';
     const token = modoPreviewActivo ? previewToken : deliveryToken;
 
-    const url = `https://${baseHost}/spaces/${spaceId}/environments/master/entries?sys.id=${id}&include=2`;
+    // Dentro de obtenerBeneficioPorId
+    const url = `https://${baseHost}/spaces/${spaceId}/environments/master/entries?sys.id=${id}&include=2&locale=es-PE`;
 
     try {
         const respuesta = await fetch(url, {

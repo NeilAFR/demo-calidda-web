@@ -5,7 +5,11 @@ import router from './router'
 import { initializeAuth } from './services/authAzure'
 import { ContentfulLivePreview } from '@contentful/live-preview';
 
-ContentfulLivePreview.init({ locale: 'es-PE' });
+ContentfulLivePreview.init({
+    locale: 'es-PE', // Cámbialo a 'es' si en Contentful tu idioma principal no tiene región
+    enableLiveUpdates: true,
+    enableInspectorMode: true
+});
 // 1. Preparamos la seguridad apenas carga la web
 initializeAuth().then((response) => {
 

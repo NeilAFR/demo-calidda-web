@@ -35,12 +35,21 @@ const cargarDatosBeneficio = async () => {
 onMounted(async () => {
   await cargarDatosBeneficio();
 
-  // Suscribirse a cambios en tiempo real de Contentful
+  // Escucha activa del SDK
   ContentfulLivePreview.subscribe({
     action: "ENTRY_UPDATED",
     callback: (updatedEntry) => {
-      // Cuando Marketing cambie un texto, volvemos a cargar para refrescar la UI
-      cargarDatosBeneficio();
+      // Si Marketing cambia algo, actualizamos la variable beneficio directamente
+      // Esto es mucho más rápido que volver a hacer un fetch
+      beneficio.value = {
+        ...beneficio.value,
+        titulo: updatedEntry.fields.titulo,
+        descripcion: updatedEntry.fields.descripcion,
+        // ... mapea aquí los campos que quieres que cambien al instante
+      };
+      
+      // O simplemente, si quieres ir a lo seguro:
+      cargarDatosBeneficio(); 
     },
   });
 });
