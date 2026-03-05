@@ -32,20 +32,18 @@ const cargarDatosBeneficio = async () => {
 };
 
 // 1. Carga inicial cuando el componente aparece
-onMounted(cargarDatosBeneficio);
+onMounted(async () => {
+  await cargarDatosBeneficio();
 
-/**
- * 2. FIX LIVE PREVIEW: 
- * Escuchamos cualquier cambio en la ruta completa. 
- * Si Marketing cambia la plantilla o el contenido en Contentful, 
- * la URL del iframe se refresca y este 'watch' dispara la recarga de datos.
- */
-watch(
-  () => route.fullPath,
-  () => {
-    cargarDatosBeneficio();
-  }
-);
+  // Suscribirse a cambios en tiempo real de Contentful
+  ContentfulLivePreview.subscribe({
+    action: "ENTRY_UPDATED",
+    callback: (updatedEntry) => {
+      // Cuando Marketing cambie un texto, volvemos a cargar para refrescar la UI
+      cargarDatosBeneficio();
+    },
+  });
+});
 
 // 3. Selección dinámica de plantilla
 const componenteElegido = computed(() => {
