@@ -34,6 +34,8 @@ export const obtenerBeneficios = async (esPreview = false) => {
 // FUNCIÓN 2: Trae UN SOLO beneficio por ID (Usada en DetalleBeneficioView.vue)
 // ============================================================================
 export const obtenerBeneficioPorId = async (id, esPreview = false) => {
+    const parametros = new URLSearchParams(window.location.search);
+    const esPreview = parametros.get('preview') === 'true';
     const baseHost = esPreview ? 'preview.contentful.com' : 'cdn.contentful.com';
     const token = esPreview ? previewToken : deliveryToken;
 

@@ -25,7 +25,10 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    if (to.meta.requiresAuth) {
+    // Verificamos si en la URL existe el parámetro ?preview=true
+    const esModoPreview = to.query.preview === 'true';
+
+    if (to.meta.requiresAuth && !esModoPreview) {
         const user = getActiveAccount();
         if (!user) {
             next('/');
@@ -33,6 +36,7 @@ router.beforeEach(async (to, from, next) => {
             next();
         }
     } else {
+        // Si es modo preview, saltamos el guardia de Azure
         next();
     }
 });
