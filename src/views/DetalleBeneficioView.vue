@@ -2,7 +2,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import NavBar from '../components/NavBar.vue';
-
+import { ContentfulLivePreview } from '@contentful/live-preview';
 // Importamos las plantillas
 import PlantillaEPS from '../components/PlantillaEPS.vue';
 import PlantillaEducacion from '../components/PlantillaEducacion.vue';
@@ -35,24 +35,21 @@ const cargarDatosBeneficio = async () => {
 onMounted(async () => {
   await cargarDatosBeneficio();
 
-  // Escucha activa del SDK
+  // Suscripción OFICIAL al Live Preview de Contentful
   ContentfulLivePreview.subscribe({
-    action: "ENTRY_UPDATED",
-    callback: (updatedEntry) => {
-      // Si Marketing cambia algo, actualizamos la variable beneficio directamente
-      // Esto es mucho más rápido que volver a hacer un fetch
-      beneficio.value = {
-        ...beneficio.value,
-        titulo: updatedEntry.fields.titulo,
-        descripcion: updatedEntry.fields.descripcion,
-        // ... mapea aquí los campos que quieres que cambien al instante
-      };
-      
-      // O simplemente, si quieres ir a lo seguro:
-      cargarDatosBeneficio(); 
-    },
+    data: beneficio.value,
+    callback: (updatedData) => {
+      // Cuando escribas en Contentful, esto forzará una recarga de los datos
+      cargarDatosBeneficio();
+    }
   });
 });
+watch(
+  () => route.fullPath,
+  () => {
+    cargarDatosBeneficio();
+  }
+);
 
 // 3. Selección dinámica de plantilla
 const componenteElegido = computed(() => {
@@ -86,7 +83,7 @@ const componenteElegido = computed(() => {
           <p class="text-slate-800 font-bold">Beneficio no disponible</p>
           <p class="text-slate-500 text-sm">El contenido que buscas no existe o aún no ha sido publicado.</p>
         </div>
-        <router-link to="/inicio" class="text-primary font-bold text-sm underline">Volver al inicio</router-link>
+        <router-link :to="{ path: '/inicio', query: $route.query }" class="text-primary font-bold text-sm underline">Volver al inicio</router-link>
       </div>
 
       <component 
